@@ -1,7 +1,8 @@
 const { StatusCodes } = require("http-status-codes");
 const nodemailer = require("nodemailer");
+const sgMail = require("@sendgrid/mail");
 
-const sendEmail = async (req, res) => {
+const sendEmailEthereal = async (req, res) => {
   // Generate test SMTP service account from ethereal.email
   const testAccount = await nodemailer.createTestAccount();
 
@@ -26,6 +27,27 @@ const sendEmail = async (req, res) => {
   });
 
   return res.status(StatusCodes.OK).json({ info });
+};
+
+const sendEmail = async (req, res) => {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  const msg = {
+    to: "test@example.com", // Change to your recipient
+    from: "test@example.com", // Change to your verified sender
+    subject: "Sending with SendGrid is Fun",
+    text: "and easy to do anywhere, even with Node.js",
+    html: "<strong>and easy to do anywhere, even with Node.js</strong>",
+  };
+  sgMail
+    .send(msg)
+    .then(() => {
+      console.log("Email sent");
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+
+  return res.status(StatusCodes.OK).json({ msg });
 };
 
 module.exports = sendEmail;
